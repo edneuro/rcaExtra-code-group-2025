@@ -1,0 +1,34 @@
+function rcaExtra_plotRCSummary(rcResult, rcStats)
+% Function displays summary results of RCA
+% Alexandra Yakovleva, 2020 Stanford University
+    f = figure;
+    f.Name = rcResult.rcaSettings.label;
+    nRows = 3;
+    %% Row 1: plot Topography
+    plotRCTopoMaps(f, rcResult.A, nRows);
+    
+    %% Row 2: plot waveforms with significance for time domain data 
+    %% or amplitude bars/significance for frequency domain data
+    
+    switch rcResult.rcaSettings.domain
+        case 'time'
+            plotRCWaveforms(f, rcResult, rcStats, nRows);
+        case 'freq'
+            plotAmplitudeBars(f, rcResult.projAvg, rcStats, nRows);
+        otherwise
+    end
+    
+    %% Row 3: plot Cov spectrum and dGen
+    try
+        plotdGen(f, rcResult.covData, rcResult.rcaSettings.nComp, nRows);
+    catch err
+    end
+    
+    %% save figure
+    filename = strcat('rca_', rcResult.rcaSettings.domain, rcResult.rcaSettings.label, '_', rcResult.rcaSettings.runDate, '.fig');
+    filename_png = strcat('rca_', rcResult.rcaSettings.domain, rcResult.rcaSettings.label, '_', rcResult.rcaSettings.runDate, '.eps');
+
+    saveas(gcf, fullfile(rcResult.rcaSettings.destDataDir_FIG, filename));
+    saveas(gcf, fullfile(rcResult.rcaSettings.destDataDir_FIG, filename_png));
+end
+
